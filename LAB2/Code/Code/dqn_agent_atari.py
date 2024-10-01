@@ -62,7 +62,7 @@ class AtariDQNAgent(DQNBaseAgent):
 
 		q_value = torch.gather(self.behavior_net(state), 1, action.long())
 		with torch.no_grad():
-			q_next = self.target_net(next_state).max(1).values
+			q_next = self.target_net(next_state).max(1)[0].unsqueeze(1)
 
 			# if episode terminates at next_state, then q_target = reward
 			q_target = torch.where(done.bool(), reward, reward + self.gamma * q_next)
