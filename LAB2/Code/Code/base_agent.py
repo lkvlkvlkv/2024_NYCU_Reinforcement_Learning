@@ -84,7 +84,7 @@ class DQNBaseAgent(ABC):
 				if terminate or truncate:
 					self.writer.add_scalar('Train/Episode Reward', episode_reward, self.total_time_step)
 					self.writer.add_scalar('Train/Episode Len', episode_len, self.total_time_step)
-					print(f"[{self.total_time_step}/{self.training_steps}]  episode: {episode_idx}  episode reward: {episode_reward}  episode len: {episode_len}  epsilon: {self.epsilon}")
+					print(f"[{self.total_time_step}/{self.training_steps}]  episode: {episode_idx}  episode reward: {episode_reward}  episode len: {episode_len}  epsilon: {self.epsilon}, time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}")
 					break
 					
 				observation = next_observation
