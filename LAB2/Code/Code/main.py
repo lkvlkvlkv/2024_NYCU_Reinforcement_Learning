@@ -1,5 +1,6 @@
 from dqn_agent_atari import AtariDQNAgent
 from ddqn_agent_atari import AtariDDQNAgent
+from dueling_dqn_agent_atari import AtariDuelingDQNAgent
 import time
 
 if __name__ == '__main__':
@@ -27,6 +28,6 @@ if __name__ == '__main__':
 		"env_id": 'ALE/MsPacman-v5',
         # todo seed
 	}
-    agent = AtariDDQNAgent(config)
+    agent = AtariDuelingDQNAgent(config)
     agent.train()
     agent.close()
