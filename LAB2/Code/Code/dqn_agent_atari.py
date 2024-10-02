@@ -42,7 +42,9 @@ class AtariDQNAgent(DQNBaseAgent):
 		if random.random() < epsilon:
 			action = action_space.sample()
 		else:
-			action = self.behavior_net(torch.tensor(observation).float().to(self.device).unsqueeze(0)).argmax().item()
+			observation = np.array(observation)
+			observation = torch.tensor(observation).float().to(self.device).unsqueeze(0)
+			action = self.behavior_net(observation).argmax().item()
 
 		return action
 
