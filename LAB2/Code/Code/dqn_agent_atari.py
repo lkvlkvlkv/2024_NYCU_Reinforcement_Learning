@@ -13,14 +13,14 @@ class AtariDQNAgent(DQNBaseAgent):
 		super(AtariDQNAgent, self).__init__(config)
 		### TODO ###
 		# initialize env
-		self.env = gym.make(config["env_id"])
+		self.env = gym.make(config["env_id"], repeat_action_probability=0.0)
 		self.env = GrayScaleObservation(self.env)
 		self.env = ResizeObservation(self.env, 84)
 		self.env = FrameStack(self.env, 4)
 
 		### TODO ###
 		# initialize test_env
-		self.test_env = gym.make(config["env_id"], render_mode="rgb_array")
+		self.test_env = gym.make(config["env_id"], render_mode="rgb_array", repeat_action_probability=0.0)
 		self.test_env = GrayScaleObservation(self.test_env)
 		self.test_env = ResizeObservation(self.test_env, 84)
 		self.test_env = FrameStack(self.test_env, 4)
