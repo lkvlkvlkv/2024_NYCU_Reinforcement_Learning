@@ -3,3 +3,4 @@ slides
 weights_*
 events.out.tfevents.*
 *.pyc
+*.pth
