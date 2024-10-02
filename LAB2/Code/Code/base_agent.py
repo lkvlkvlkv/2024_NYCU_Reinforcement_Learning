@@ -133,6 +133,12 @@ class DQNBaseAgent(ABC):
 	def load_and_evaluate(self, load_path):
 		self.load(load_path)
 		self.evaluate()
+	
+	def close(self):
+		self.env.close()
+		self.test_env.close()
+		self.writer.flush()
+		self.writer.close()
 
 
 

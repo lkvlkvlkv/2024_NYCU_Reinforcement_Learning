@@ -28,3 +28,4 @@ if __name__ == '__main__':
 	}
     agent = AtariDQNAgent(config)
     agent.train()
+    agent.close()
