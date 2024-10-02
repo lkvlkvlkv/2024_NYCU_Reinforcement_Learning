@@ -1,4 +1,5 @@
 from dqn_agent_atari import AtariDQNAgent
+from ddqn_agent_atari import AtariDDQNAgent
 import time
 
 if __name__ == '__main__':
@@ -16,7 +17,7 @@ if __name__ == '__main__':
 		"eval_epsilon": 0.01,
 		"replay_buffer_capacity": 100000,
 		# "logdir": 'log/DQN/Enduro/',
-		"logdir": f'log/DQN/MsPacman/{timestamp}/',
+		"logdir": f'log/DDQN/MsPacman/{timestamp}/',
 		"update_freq": 4,
 		"update_target_freq": 10000,
 		"learning_rate": 0.0000625,
@@ -26,6 +27,6 @@ if __name__ == '__main__':
 		"env_id": 'ALE/MsPacman-v5',
         # todo seed
 	}
-    agent = AtariDQNAgent(config)
+    agent = AtariDDQNAgent(config)
     agent.train()
     agent.close()
