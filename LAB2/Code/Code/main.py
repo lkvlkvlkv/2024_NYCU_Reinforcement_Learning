@@ -1,10 +1,12 @@
 from dqn_agent_atari import AtariDQNAgent
+import time
 
 if __name__ == '__main__':
     # my hyperparameters, you can change it as you like
+    timestamp = time.strftime("%Y_%m_%d_%H_%M", time.localtime())
     config = {
 		"gpu": True,
-		"training_steps": 1e8,
+		"training_steps": 4e6,
 		"gamma": 0.99,
 		# "batch_size": 32,
 		"batch_size": 128,
@@ -14,7 +16,7 @@ if __name__ == '__main__':
 		"eval_epsilon": 0.01,
 		"replay_buffer_capacity": 100000,
 		# "logdir": 'log/DQN/Enduro/',
-		"logdir": 'log/DQN/MsPacman/',
+		"logdir": f'log/DQN/MsPacman/{timestamp}/',
 		"update_freq": 4,
 		"update_target_freq": 10000,
 		"learning_rate": 0.0000625,
