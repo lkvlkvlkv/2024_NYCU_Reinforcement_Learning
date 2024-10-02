@@ -104,7 +104,7 @@ class DQNBaseAgent(ABC):
 			observation, info = self.test_env.reset()
 			total_reward = 0
 			while True:
-				self.test_env.render()
+				# self.test_env.render()
 				action = self.decide_agent_actions(observation, self.eval_epsilon, self.test_env.action_space)
 				next_observation, reward, terminate, truncate, info = self.test_env.step(action)
 				total_reward += reward
