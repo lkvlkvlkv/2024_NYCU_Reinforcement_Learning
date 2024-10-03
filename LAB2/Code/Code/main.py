@@ -1,11 +1,13 @@
 from dqn_agent_atari import AtariDQNAgent
 from ddqn_agent_atari import AtariDDQNAgent
 from dueling_dqn_agent_atari import AtariDuelingDQNAgent
+from parallelized_dqn_agent_atari import AtariDQNAgent as ParallelizedAtariDQNAgent
 import time
 
-agent_type = 'DQN'
+# agent_type = 'DQN'
 # agent_type = 'DDQN'
 # agent_type = 'DuelingDQN'
+agent_type = 'ParallelizedDQN'
 
 if __name__ == '__main__':
     # my hyperparameters, you can change it as you like
@@ -21,7 +23,7 @@ if __name__ == '__main__':
 		"eps_decay": 1000000,
 		"eval_epsilon": 0.01,
 		"replay_buffer_capacity": 100000,
-		# "logdir": 'log/DQN/Enduro/',
+		# "logdir": f'log/{agent_type}/Enduro/{timestamp}/',
 		"logdir": f'log/{agent_type}/MsPacman/{timestamp}/',
 		"update_freq": 4,
 		"update_target_freq": 10000,
@@ -40,5 +42,7 @@ if __name__ == '__main__':
 		agent = AtariDDQNAgent(config)
 	elif agent_type == 'DuelingDQN':
 		agent = AtariDuelingDQNAgent(config)
+	elif agent_type == 'ParallelizedDQN':
+		agent = ParallelizedAtariDQNAgent(config)
 	agent.train()
 	agent.close()
