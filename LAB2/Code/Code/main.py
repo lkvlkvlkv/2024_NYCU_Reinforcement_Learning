@@ -1,7 +1,7 @@
 from dqn_agent_atari import AtariDQNAgent
 from ddqn_agent_atari import AtariDDQNAgent
 from dueling_dqn_agent_atari import AtariDuelingDQNAgent
-from parallelized_dqn_agent_atari import AtariDQNAgent as ParallelizedAtariDQNAgent
+from parallelized_dqn_agent_atari_without_experimental import AtariDQNAgent as ParallelizedAtariDQNAgent
 import time
 
 # agent_type = 'DQN'
@@ -46,3 +46,4 @@ if __name__ == '__main__':
 		agent = ParallelizedAtariDQNAgent(config)
 	agent.train()
 	agent.close()
+	# agent.load_and_evaluate('models/model_307096_796.pth')
