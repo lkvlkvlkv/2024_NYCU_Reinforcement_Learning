@@ -112,7 +112,7 @@ class DQNBaseAgent(ABC):
 				self.save(os.path.join(self.writer.log_dir, f"model_{self.total_time_step}_{int(avg_score)}.pth"))
 				self.writer.add_scalar('Evaluate/Episode Reward', avg_score, self.total_time_step)
 
-	def evaluate(self, seed=None):
+	def evaluate(self, seed=None, render=False):
 		print("==============================================")
 		print("Evaluating...")
 		all_rewards = []
@@ -120,7 +120,8 @@ class DQNBaseAgent(ABC):
 			observation, info = self.test_env.reset(seed=seed)
 			total_reward = 0
 			while True:
-				# self.test_env.render()
+				if render:
+					self.test_env.render()
 				action = self.decide_agent_actions(observation, self.eval_epsilon, self.test_env.action_space)
 				next_observation, reward, terminate, truncate, info = self.test_env.step(action)
 				total_reward += reward
@@ -143,15 +144,15 @@ class DQNBaseAgent(ABC):
 
 	# load model
 	def load(self, load_path):
-		self.behavior_net.load_state_dict(torch.load(load_path))
+		self.behavior_net.load_state_dict(torch.load(load_path, weights_only=True))
 
 	# load model weights and evaluate
-	def load_and_evaluate(self, load_path, seed=None):
+	def load_and_evaluate(self, load_path, seed=None, render=False):
 		if seed:
 			print(f"seed: {seed}")
 			self.test_env.action_space.seed(self.seed)
 		self.load(load_path)
-		self.evaluate(seed)
+		return self.evaluate(seed, render)
 	
 	def close(self):
 		self.env.close()
