@@ -108,7 +108,7 @@ class DQNBaseAgent(ABC):
 
 					if episode_idx % self.eval_interval == 0:
 						# save model checkpoint
-						avg_score = self.evaluate()
+						avg_score, _ = self.evaluate()
 						self.save(os.path.join(self.writer.log_dir, f"model_{self.total_time_step}_{int(avg_score)}.pth"))
 						self.writer.add_scalar('Evaluate/Episode Reward', avg_score, self.total_time_step)
 				
@@ -119,18 +119,21 @@ class DQNBaseAgent(ABC):
 		print("==============================================")
 		print("Evaluating...")
 		all_rewards = []
+		frames = []
 		for i in range(self.eval_episode):
 			observation, info = self.test_env.reset(seed=seed)
 			total_reward = 0
+			frame_list = []
 			while True:
 				if render:
-					self.test_env.render()
+					frame_list.append(self.test_env.render())
 				action = self.decide_agent_actions(observation, self.eval_epsilon, self.test_env.action_space)
 				next_observation, reward, terminate, truncate, info = self.test_env.step(action)
 				total_reward += reward
 				if terminate or truncate:
 					print(f"episode {i+1} reward: {total_reward}")
 					all_rewards.append(total_reward)
+					frames.append(frame_list)
 					break
 
 				observation = next_observation
@@ -139,7 +142,7 @@ class DQNBaseAgent(ABC):
 		avg = sum(all_rewards) / self.eval_episode
 		print(f"average score: {avg}")
 		print("==============================================")
-		return avg
+		return avg, frames
 	
 	# save model
 	def save(self, save_path):
