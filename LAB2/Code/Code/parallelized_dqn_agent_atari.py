@@ -37,7 +37,7 @@ class AtariDQNAgent(DQNBaseAgent):
 		self.lr = config["learning_rate"]
 		self.optim = torch.optim.Adam(self.behavior_net.parameters(), lr=self.lr, eps=1.5e-4)
 		
-	def decide_agent_actions(self, observation, epsilon=0.0, action_space=None, ):
+	def decide_agent_actions(self, observation, epsilon=0.0, action_space=None):
 		### TODO ###
 		# get action from behavior net, with epsilon-greedy selection
 		
