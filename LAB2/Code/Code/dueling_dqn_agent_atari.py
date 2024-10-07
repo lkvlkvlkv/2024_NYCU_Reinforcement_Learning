@@ -20,7 +20,7 @@ class AtariDuelingDQNAgent(DQNBaseAgent):
 
 		### TODO ###
 		# initialize test_env
-		self.test_env = gym.make(config["env_id"], render_mode="rgb_array", repeat_action_probability=0.0)
+		self.test_env = gym.make(config["env_id"], render_mode=config['val_render_mode'], repeat_action_probability=0.0)
 		self.test_env = GrayScaleObservation(self.test_env)
 		self.test_env = ResizeObservation(self.test_env, 84)
 		self.test_env = FrameStack(self.test_env, 4)
