@@ -7,6 +7,7 @@ from collections import deque
 from torch.utils.tensorboard import SummaryWriter
 from replay_buffer.replay_buffer import ReplayMemory
 from abc import ABC, abstractmethod
+import random
 
 
 class DQNBaseAgent(ABC):
@@ -26,9 +27,24 @@ class DQNBaseAgent(ABC):
 		self.gamma = config["gamma"]
 		self.update_freq = config["update_freq"]
 		self.update_target_freq = config["update_target_freq"]
+		self.seed = config["seed"]
 	
 		self.replay_buffer = ReplayMemory(int(config["replay_buffer_capacity"]))
 		self.writer = SummaryWriter(config["logdir"])
+
+		self.set_seed(self.seed)
+
+
+	def set_seed(self, seed):
+		random.seed(seed) 
+		np.random.seed(seed)  
+		torch.manual_seed(seed)
+		if torch.cuda.is_available():
+			torch.cuda.manual_seed(seed)
+			torch.cuda.manual_seed_all(seed) 
+		torch.backends.cudnn.benchmark = False
+		torch.backends.cudnn.deterministic = True
+
 
 	@abstractmethod
 	def decide_agent_actions(self, observation, epsilon=0.0, action_space=None):
@@ -96,12 +112,12 @@ class DQNBaseAgent(ABC):
 				self.save(os.path.join(self.writer.log_dir, f"model_{self.total_time_step}_{int(avg_score)}.pth"))
 				self.writer.add_scalar('Evaluate/Episode Reward', avg_score, self.total_time_step)
 
-	def evaluate(self):
+	def evaluate(self, seed=None):
 		print("==============================================")
 		print("Evaluating...")
 		all_rewards = []
 		for i in range(self.eval_episode):
-			observation, info = self.test_env.reset()
+			observation, info = self.test_env.reset(seed=seed)
 			total_reward = 0
 			while True:
 				# self.test_env.render()
@@ -130,9 +146,12 @@ class DQNBaseAgent(ABC):
 		self.behavior_net.load_state_dict(torch.load(load_path))
 
 	# load model weights and evaluate
-	def load_and_evaluate(self, load_path):
+	def load_and_evaluate(self, load_path, seed=None):
+		if seed:
+			print(f"seed: {seed}")
+			self.test_env.action_space.seed(self.seed)
 		self.load(load_path)
-		self.evaluate()
+		self.evaluate(seed)
 	
 	def close(self):
 		self.env.close()

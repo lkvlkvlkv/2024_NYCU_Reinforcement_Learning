@@ -32,7 +32,7 @@ if __name__ == '__main__':
         "eval_episode": 5,
 		# "env_id": 'ALE/Enduro-v5',
 		"env_id": 'ALE/MsPacman-v5',
-        # todo seed
+        "seed": 87
 	}
 
 	agent = None
