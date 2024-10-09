@@ -4,10 +4,10 @@ from dueling_dqn_agent_atari import AtariDuelingDQNAgent
 from parallelized_dqn_agent_atari_without_experimental import AtariDQNAgent as ParallelizedAtariDQNAgent
 import time
 
-# agent_type = 'DQN'
+agent_type = 'DQN'
 # agent_type = 'DDQN'
 # agent_type = 'DuelingDQN'
-agent_type = 'ParallelizedDQN'
+# agent_type = 'ParallelizedDQN'
 
 if __name__ == '__main__':
     # my hyperparameters, you can change it as you like
@@ -32,7 +32,8 @@ if __name__ == '__main__':
         "eval_episode": 5,
 		# "env_id": 'ALE/Enduro-v5',
 		"env_id": 'ALE/MsPacman-v5',
-        "seed": 87
+        "seed": 87,
+		"val_render_mode": "rgb_array"
 	}
 
 	agent = None
