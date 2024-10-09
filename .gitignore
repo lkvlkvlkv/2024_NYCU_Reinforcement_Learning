@@ -4,3 +4,6 @@ weights_*
 events.out.tfevents.*
 *.pyc
 *.pth
+*.mp4
+*.zip
+LAB2/src
