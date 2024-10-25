@@ -8,7 +8,8 @@ from torch.utils.tensorboard import SummaryWriter
 from replay_buffer.gae_replay_buffer import GaeSampleMemory
 from base_agent import PPOBaseAgent
 from models.atari_model import AtariNet
-import gym
+import gymnasium as gym
+from gymnasium.wrappers import GrayScaleObservation, ResizeObservation, FrameStack
 
 
 class AtariPPOAgent(PPOBaseAgent):
@@ -16,11 +17,17 @@ class AtariPPOAgent(PPOBaseAgent):
 		super(AtariPPOAgent, self).__init__(config)
 		### TODO ###
 		# initialize env
-		# self.env = ???
+		self.env = gym.make(config["env_id"])
+		self.env = GrayScaleObservation(self.env)
+		self.env = ResizeObservation(self.env, 84)
+		self.env = FrameStack(self.env, 4)
 		
 		### TODO ###
 		# initialize test_env
-		# self.test_env = ???
+		self.test_env = gym.make(config["env_id"], repeat_action_probability=0.0)
+		self.test_env = GrayScaleObservation(self.test_env)
+		self.test_env = ResizeObservation(self.test_env, 84)
+		self.test_env = FrameStack(self.test_env, 4)
 
 		self.net = AtariNet(self.env.action_space.n)
 		self.net.to(self.device)
@@ -33,13 +40,13 @@ class AtariPPOAgent(PPOBaseAgent):
 		# add batch dimension in observation
 		# get action, value, logp from net
 		
-		# if eval:
-		# 	with torch.no_grad():
-		# 		???, ???, ???, _ = self.net(observation, eval=True)
-		# else:
-		# 	???, ???, ???, _ = self.net(observation)
+		if eval:
+			with torch.no_grad():
+				action, _, _, _ = self.net(observation, eval=True)
+		else:
+			action, _, _, _ = self.net(observation, eval=False)
 		
-		return NotImplementedError
+		return action
 
 	
 	def update(self):
@@ -86,30 +93,30 @@ class AtariPPOAgent(PPOBaseAgent):
 
 				### TODO ###
 				# calculate loss and update network
-				# ???, ???, ???, ??? = self.net(...)
+				_, action_logp, value, entropy = self.net(ob_train_batch)
 
 				# calculate policy loss
-				# ratio = ???
-				# surrogate_loss = ???
+				ratio = torch.exp(action_logp - logp_pi_train_batch)
+				surrogate_loss = -torch.min(ratio * adv_train_batch, torch.clamp(ratio, 1 - self.clip_epsilon, 1 + self.clip_epsilon) * adv_train_batch)
 
 				# calculate value loss
-				# value_criterion = nn.MSELoss()
-				# v_loss = value_criterion(...)
+				value_criterion = nn.MSELoss()
+				v_loss = value_criterion(value, return_train_batch)
 				
 				# calculate total loss
-				# loss = surrogate_loss + self.value_coefficient * v_loss - self.entropy_coefficient * entropy
+				loss = surrogate_loss + self.value_coefficient * v_loss - self.entropy_coefficient * entropy
 
 				# update network
-				# self.optim.zero_grad()
-				# loss.backward()
-				# nn.utils.clip_grad_norm_(self.net.parameters(), self.max_gradient_norm)
-				# self.optim.step()
+				self.optim.zero_grad()
+				loss.backward()
+				nn.utils.clip_grad_norm_(self.net.parameters(), self.max_gradient_norm)
+				self.optim.step()
 
-				# total_surrogate_loss += surrogate_loss.item()
-				# total_v_loss += v_loss.item()
-				# total_entropy += entropy.item()
-				# total_loss += loss.item()
-				# loss_counter += 1
+				total_surrogate_loss += surrogate_loss.item()
+				total_v_loss += v_loss.item()
+				total_entropy += entropy.item()
+				total_loss += loss.item()
+				loss_counter += 1
 
 		self.writer.add_scalar('PPO/Loss', total_loss / loss_counter, self.total_time_step)
 		self.writer.add_scalar('PPO/Surrogate Loss', total_surrogate_loss / loss_counter, self.total_time_step)
