@@ -37,12 +37,17 @@ class AtariNet(nn.Module):
         logits = self.action_logits(x)
         
         dist = Categorical(logits=logits)
-        
-        ### TODO ###
-        # Finish the forward function
-        # Return action, action probability, value, entropy
 
-        return NotImplementedError
+        if eval:
+            action = torch.argmax(logits, dim=1)
+        else:
+            action = dist.sample()
+
+        action_logp = dist.log_prob(action)
+        entropy = dist.entropy()
+
+        return action, action_logp, value, entropy
+
 
     def _initialize_weights(self):
         for m in self.modules():
