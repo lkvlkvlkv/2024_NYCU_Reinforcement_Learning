@@ -8,9 +8,14 @@ from torch.utils.tensorboard import SummaryWriter
 from replay_buffer.gae_replay_buffer import GaeSampleMemory
 from replay_buffer.replay_buffer import ReplayMemory
 from abc import ABC, abstractmethod
+import gymnasium as gym
+import ale_py
+
+
 
 class PPOBaseAgent(ABC):
 	def __init__(self, config):
+		gym.register_envs(ale_py)
 		self.gpu = config["gpu"]
 		self.device = torch.device("cuda" if self.gpu and torch.cuda.is_available() else "cpu")
 		self.total_time_step = 0
