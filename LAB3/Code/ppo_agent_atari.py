@@ -98,6 +98,7 @@ class AtariPPOAgent(PPOBaseAgent):
 				### TODO ###
 				# calculate loss and update network
 				_, action_logp, value, entropy = self.net(ob_train_batch)
+				entropy = entropy.mean()
 
 				# calculate policy loss
 				ratio = torch.exp(action_logp - logp_pi_train_batch)
@@ -109,7 +110,7 @@ class AtariPPOAgent(PPOBaseAgent):
 				v_loss = value_criterion(value, return_train_batch)
 				
 				# calculate total loss
-				loss = surrogate_loss + self.value_coefficient * v_loss - self.entropy_coefficient * entropy.mean()
+				loss = surrogate_loss + self.value_coefficient * v_loss - self.entropy_coefficient * entropy
 
 				# update network
 				self.optim.zero_grad()
