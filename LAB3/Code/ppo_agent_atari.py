@@ -33,7 +33,7 @@ class AtariPPOAgent(PPOBaseAgent):
 		self.net.to(self.device)
 		self.lr = config["learning_rate"]
 		self.update_count = config["update_ppo_epoch"]
-		self.optim = torch.optim.Adam(self.net.parameters(), lr=self.lr)
+		self.optim = torch.optim.Adam(self.net.parameters(), lr=self.lr, betas=(0.9, 0.999), eps=1e-5)
 		
 	def decide_agent_actions(self, observation, eval=False):
 		### TODO ###
