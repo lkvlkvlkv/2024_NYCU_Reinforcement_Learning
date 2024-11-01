@@ -9,7 +9,7 @@ from replay_buffer.gae_replay_buffer import GaeSampleMemory
 from base_agent import PPOBaseAgent
 from models.atari_model import AtariNet
 import gymnasium as gym
-from gymnasium.wrappers import GrayScaleObservation, ResizeObservation, FrameStack
+from gymnasium.wrappers import GrayscaleObservation, ResizeObservation, FrameStackObservation
 
 
 class AtariPPOAgent(PPOBaseAgent):
@@ -18,16 +18,16 @@ class AtariPPOAgent(PPOBaseAgent):
 		### TODO ###
 		# initialize env
 		self.env = gym.make(config["env_id"])
-		self.env = GrayScaleObservation(self.env)
-		self.env = ResizeObservation(self.env, 84)
-		self.env = FrameStack(self.env, 4)
+		self.env = GrayscaleObservation(self.env)
+		self.env = ResizeObservation(self.env, (84, 84))
+		self.env = FrameStackObservation(self.env, 4)
 		
 		### TODO ###
 		# initialize test_env
 		self.test_env = gym.make(config["env_id"], repeat_action_probability=0.0)
-		self.test_env = GrayScaleObservation(self.test_env)
-		self.test_env = ResizeObservation(self.test_env, 84)
-		self.test_env = FrameStack(self.test_env, 4)
+		self.test_env = GrayscaleObservation(self.test_env)
+		self.test_env = ResizeObservation(self.test_env, (84, 84))
+		self.test_env = FrameStackObservation(self.test_env, 4)
 
 		self.net = AtariNet(self.env.action_space.n)
 		self.net.to(self.device)
