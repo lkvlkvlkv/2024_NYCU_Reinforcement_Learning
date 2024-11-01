@@ -40,13 +40,17 @@ class AtariPPOAgent(PPOBaseAgent):
 		# add batch dimension in observation
 		# get action, value, logp from net
 		
+		observation = observation[np.newaxis, :]
+		observation = torch.from_numpy(observation)
+		observation = observation.to(self.device, dtype=torch.float32)
+
 		if eval:
 			with torch.no_grad():
-				action, _, _, _ = self.net(observation, eval=True)
+				action, action_logp, value, _ = self.net(observation, eval=True)
 		else:
-			action, _, _, _ = self.net(observation, eval=False)
+			action, action_logp, value, _ = self.net(observation, eval=False)
 		
-		return action
+		return action, action_logp, value
 
 	
 	def update(self):
@@ -98,13 +102,14 @@ class AtariPPOAgent(PPOBaseAgent):
 				# calculate policy loss
 				ratio = torch.exp(action_logp - logp_pi_train_batch)
 				surrogate_loss = -torch.min(ratio * adv_train_batch, torch.clamp(ratio, 1 - self.clip_epsilon, 1 + self.clip_epsilon) * adv_train_batch)
+				surrogate_loss = surrogate_loss.mean()
 
 				# calculate value loss
 				value_criterion = nn.MSELoss()
 				v_loss = value_criterion(value, return_train_batch)
 				
 				# calculate total loss
-				loss = surrogate_loss + self.value_coefficient * v_loss - self.entropy_coefficient * entropy
+				loss = surrogate_loss + self.value_coefficient * v_loss - self.entropy_coefficient * entropy.mean()
 
 				# update network
 				self.optim.zero_grad()

@@ -69,6 +69,10 @@ class PPOBaseAgent(ABC):
 				# dimension of reward, value, logp_pi, done must be the same
 				obs = {}
 				obs["observation_2d"] = np.asarray(observation, dtype=np.float32)
+				action = np.asarray(action.detach().cpu(), dtype=np.int64)
+				value = np.asarray(value.detach().cpu().item(), dtype=np.float32)
+				logp_pi = np.asarray(logp_pi.detach().cpu().item(), dtype=np.float32)
+
 				self.gae_replay_buffer.append(0, {
 						"observation": obs,    # shape = (4,84,84)
 						"action": action,      # shape = (1,)
