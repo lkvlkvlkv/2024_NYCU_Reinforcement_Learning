@@ -112,7 +112,7 @@ class PPOBaseAgent(ABC):
 			observation, info = self.test_env.reset()
 			total_reward = 0
 			while True:
-				self.test_env.render()
+				# self.test_env.render()
 				action, _, _ = self.decide_agent_actions(observation, eval=True)
 				next_observation, reward, terminate, truncate, info = self.test_env.step(action[0])
 				total_reward += reward
