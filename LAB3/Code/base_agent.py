@@ -10,11 +10,12 @@ from replay_buffer.replay_buffer import ReplayMemory
 from abc import ABC, abstractmethod
 import gymnasium as gym
 import ale_py
-
+import random
 
 
 class PPOBaseAgent(ABC):
 	def __init__(self, config):
+		self.set_seed(config["seed"])
 		gym.register_envs(ale_py)
 		self.gpu = config["gpu"]
 		self.device = torch.device("cuda" if self.gpu and torch.cuda.is_available() else "cpu")
@@ -38,6 +39,12 @@ class PPOBaseAgent(ABC):
 			})
 
 		self.writer = SummaryWriter(config["logdir"])
+	
+	def set_seed(self, seed):
+		random.seed(seed)
+		np.random.seed(seed)
+		torch.manual_seed(seed)
+		torch.backends.cudnn.deterministic = True
 
 	@abstractmethod
 	def decide_agent_actions(self, observation):
