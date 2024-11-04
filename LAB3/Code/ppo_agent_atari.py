@@ -11,25 +11,33 @@ from models.atari_model import AtariNet
 import gymnasium as gym
 from gymnasium.wrappers import GrayscaleObservation, ResizeObservation, FrameStackObservation
 
+def make_env(env_id, repeat_action_probability=None, record_video=False):
+	def thunk():
+		if repeat_action_probability is not None:
+			env = gym.make(env_id, repeat_action_probability=repeat_action_probability)
+		else:
+			env = gym.make(env_id)
+		env = GrayscaleObservation(env)
+		env = ResizeObservation(env, (84, 84))
+		env = FrameStackObservation(env, 4)
+		env = gym.wrappers.RecordEpisodeStatistics(env)
+		if record_video:
+			env = gym.wrappers.RecordVideo(env=env, path='./video', episode_trigger=lambda x: x % 100 == 0)
+		return env
+	return thunk
 
 class AtariPPOAgent(PPOBaseAgent):
 	def __init__(self, config):
 		super(AtariPPOAgent, self).__init__(config)
 		### TODO ###
 		# initialize env
-		self.env = gym.make(config["env_id"])
-		self.env = GrayscaleObservation(self.env)
-		self.env = ResizeObservation(self.env, (84, 84))
-		self.env = FrameStackObservation(self.env, 4)
+		self.env = gym.vector.SyncVectorEnv([make_env(env_id=config["env_id"]) for _ in range(config["agent_count"])])
 		
 		### TODO ###
 		# initialize test_env
-		self.test_env = gym.make(config["env_id"], repeat_action_probability=0.0)
-		self.test_env = GrayscaleObservation(self.test_env)
-		self.test_env = ResizeObservation(self.test_env, (84, 84))
-		self.test_env = FrameStackObservation(self.test_env, 4)
+		self.test_env = make_env(env_id=config["env_id"], repeat_action_probability=0.0)()
 
-		self.net = AtariNet(self.env.action_space.n)
+		self.net = AtariNet(self.test_env.action_space.n)
 		self.net.to(self.device)
 		self.lr = config["learning_rate"]
 		self.update_count = config["update_ppo_epoch"]
@@ -40,7 +48,9 @@ class AtariPPOAgent(PPOBaseAgent):
 		# add batch dimension in observation
 		# get action, value, logp from net
 		
-		observation = observation[np.newaxis, :]
+		if len(observation.shape) == 3:
+			observation = observation[np.newaxis, :]
+
 		observation = torch.from_numpy(observation)
 		observation = observation.to(self.device, dtype=torch.float32)
 
