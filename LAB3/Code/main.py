@@ -1,7 +1,8 @@
 from ppo_agent_atari import AtariPPOAgent
+import time
 
 if __name__ == '__main__':
-
+	timestamp = time.strftime("%Y_%m_%d_%H_%M", time.localtime())
 	config = {
 		"gpu": True,
 		"training_steps": 1e8,
@@ -11,7 +12,7 @@ if __name__ == '__main__':
 		"clip_epsilon": 0.2,
 		"max_gradient_norm": 0.5,
 		"batch_size": 128,
-		"logdir": 'log/Enduro_release/',
+		"logdir": f'log/Enduro/{timestamp}/',
 		"update_ppo_epoch": 3,
 		"learning_rate": 2.5e-4,
 		"value_coefficient": 0.5,
