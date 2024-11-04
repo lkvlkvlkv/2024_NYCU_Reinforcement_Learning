@@ -138,11 +138,13 @@ class AtariPPOAgent(PPOBaseAgent):
 		self.writer.add_scalar('PPO/Surrogate Loss', total_surrogate_loss / loss_counter, self.total_time_step)
 		self.writer.add_scalar('PPO/Value Loss', total_v_loss / loss_counter, self.total_time_step)
 		self.writer.add_scalar('PPO/Entropy', total_entropy / loss_counter, self.total_time_step)
-		print(f"Loss: {total_loss / loss_counter}\
-			  Surrogate Loss: {total_surrogate_loss / loss_counter}\
-			  Value Loss: {total_v_loss / loss_counter}\
-			  Entropy: {total_entropy / loss_counter}\
-			")
+		
+		loss = total_loss / loss_counter
+		surrogate_loss = total_surrogate_loss / loss_counter
+		v_loss = total_v_loss / loss_counter
+		entropy = total_entropy / loss_counter
+	
+		print(f"Loss: {loss:.10f}, Surrogate Loss: {surrogate_loss:.10f}, Value Loss: {v_loss:.10f}, Entropy: {entropy:.10f}")
 	
 
 
