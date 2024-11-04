@@ -107,7 +107,7 @@ class AtariPPOAgent(PPOBaseAgent):
 
 				### TODO ###
 				# calculate loss and update network
-				_, action_logp, value, entropy = self.net(ob_train_batch)
+				_, action_logp, value, entropy = self.net(ob_train_batch, action=ac_train_batch)
 				entropy = entropy.mean()
 
 				# calculate policy loss

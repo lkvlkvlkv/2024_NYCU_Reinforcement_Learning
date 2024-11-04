@@ -27,26 +27,22 @@ class AtariNet(nn.Module):
         if init_weights:
             self._initialize_weights()
 
-    def forward(self, x, eval=False, a=[]):
+    def forward(self, x, eval=False, action=None):
         x = x.float() / 255.
         x = self.cnn(x)
         x = torch.flatten(x, start_dim=1)
-        value = self.value(x)
-        value = torch.squeeze(value)
 
         logits = self.action_logits(x)
         
         dist = Categorical(logits=logits)
 
-        if eval:
-            action = torch.argmax(logits, dim=1)
-        else:
-            action = dist.sample()
+        if action is None:
+            if eval:
+                action = torch.argmax(logits, dim=1)
+            else:
+                action = dist.sample()
 
-        action_logp = dist.log_prob(action)
-        entropy = dist.entropy()
-
-        return action, action_logp, value, entropy
+        return action, dist.log_prob(action), self.value(x), dist.entropy()
 
 
     def _initialize_weights(self):
