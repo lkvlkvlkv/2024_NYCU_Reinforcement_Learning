@@ -107,7 +107,7 @@ class PPOBaseAgent(ABC):
 						episode_idx += 1
 						self.writer.add_scalar('Train/Episode Reward', episode_reward, self.total_time_step)
 						self.writer.add_scalar('Train/Episode Len', episode_len, self.total_time_step)
-						print(f"[{len(self.gae_replay_buffer)}/{self.update_sample_count}][{self.total_time_step}/{self.training_steps}]  episode: {episode_idx}  episode reward: {episode_reward}  episode len: {episode_len}")
+						print(f"[{len(self.gae_replay_buffer)}/{self.update_sample_count}][{self.total_time_step}/{self.training_steps}]  episode: {episode_idx}  episode reward: {episode_reward}  episode len: {episode_len} timestamp: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}")
 						
 						if episode_idx % self.eval_interval == 0:
 							# save model checkpoint
