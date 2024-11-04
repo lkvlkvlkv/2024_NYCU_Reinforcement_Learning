@@ -75,7 +75,7 @@ class PPOBaseAgent(ABC):
 			observation_2d = np.asarray(observation, dtype=np.float32)
 			action = action.detach().cpu().numpy().reshape(-1, 1)
 			value = value.detach().cpu().numpy()
-			logp_pi = logp_pi.detach().cpu().numpy()
+			logp_pi = logp_pi.detach().cpu().numpy().reshape(-1)
 
 			for i in range(self.agent_count):
 				obs = {}
