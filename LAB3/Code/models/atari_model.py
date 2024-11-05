@@ -42,7 +42,7 @@ class AtariNet(nn.Module):
             else:
                 action = dist.sample()
 
-        return action, dist.log_prob(action), self.value(x), dist.entropy()
+        return action, dist.log_prob(action), self.value(x).squeeze(-1), dist.entropy().mean()
 
 
     def _initialize_weights(self):

@@ -117,7 +117,7 @@ class AtariPPOAgent(PPOBaseAgent):
 
 				# calculate value loss
 				value_criterion = nn.MSELoss()
-				v_loss = value_criterion(value.reshape(-1), return_train_batch)
+				v_loss = value_criterion(value, return_train_batch)
 
 				# calculate total loss
 				loss = surrogate_loss + self.value_coefficient * v_loss - self.entropy_coefficient * entropy
