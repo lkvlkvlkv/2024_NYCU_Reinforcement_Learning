@@ -31,7 +31,7 @@ class AtariPPOAgent(PPOBaseAgent):
 		super(AtariPPOAgent, self).__init__(config)
 		### TODO ###
 		# initialize env
-		self.env = gym.vector.SyncVectorEnv([make_env(env_id=config["env_id"]) for _ in range(config["agent_count"])])
+		self.env = gym.vector.AsyncVectorEnv([make_env(env_id=config["env_id"]) for _ in range(config["agent_count"])])
 		
 		### TODO ###
 		# initialize test_env
@@ -118,7 +118,7 @@ class AtariPPOAgent(PPOBaseAgent):
 				# calculate value loss
 				value_criterion = nn.MSELoss()
 				v_loss = value_criterion(value.reshape(-1), return_train_batch)
-				
+
 				# calculate total loss
 				loss = surrogate_loss + self.value_coefficient * v_loss - self.entropy_coefficient * entropy
 
