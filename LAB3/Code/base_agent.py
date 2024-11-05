@@ -68,7 +68,7 @@ class PPOBaseAgent(ABC):
 		observation, info = self.env.reset()
 		while self.total_time_step <= self.training_steps:
 			
-			action, value, logp_pi = self.decide_agent_actions(observation)
+			action, logp_pi, value = self.decide_agent_actions(observation)
 			next_observation, reward, terminate, truncate, info = self.env.step(action)
 			# observation must be dict before storing into gae_replay_buffer
 			# dimension of reward, value, logp_pi, done must be the same
