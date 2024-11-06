@@ -48,8 +48,8 @@ class CarRacingTD3Agent(TD3BaseAgent):
 
 		self.noise = GaussianNoise(self.env.action_space.shape[0], 0.0, 1.0)
 
-		self.min_action = self.env.action_space.low
-		self.max_action = self.env.action_space.high
+		self.min_action = torch.tensor(self.env.action_space.low, dtype=torch.float32).to(self.device)
+		self.max_action = torch.tensor(self.env.action_space.high, dtype=torch.float32).to(self.device)
 		
 	
 	def decide_agent_actions(self, state, sigma=0.0, brake_rate=0.015):
@@ -57,10 +57,10 @@ class CarRacingTD3Agent(TD3BaseAgent):
 		# based on the behavior (actor) network and exploration noise
 		with torch.no_grad():
 			state = torch.tensor(state, dtype=torch.float32).unsqueeze(0).to(self.device)
-			action = self.actor_net(state, brake_rate=brake_rate) + sigma * self.noise
-			action = torch.clamp(action, self.min_action, self.max_action)
+			action = self.actor_net(state, brake_rate=brake_rate) + sigma * torch.tensor(self.noise.generate(), dtype=torch.float32).to(self.device)
+			action = action.clamp(self.min_action, self.max_action)
 
-		return action
+		return action.squeeze(0).detach().cpu().numpy()
 		
 
 	def update_behavior_network(self):
@@ -78,8 +78,8 @@ class CarRacingTD3Agent(TD3BaseAgent):
 		q_value2 = self.critic_net2(state, action)
 		with torch.no_grad():
 			# select action a_next from target actor network and add noise for smoothing
-			a_next = self.target_actor_net(next_state, brake_rate=0.015) + self.noise
-			a_next = torch.clamp(a_next, self.min_action, self.max_action)
+			a_next = self.target_actor_net(next_state, brake_rate=0.015) + torch.tensor(self.noise.generate(), dtype=torch.float32).to(self.device)
+			a_next = action.clamp(self.min_action, self.max_action)
 
 			q_next1 = self.target_critic_net1(next_state, a_next)
 			q_next2 = self.target_critic_net2(next_state, a_next)
