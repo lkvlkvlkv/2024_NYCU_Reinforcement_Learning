@@ -12,12 +12,11 @@ import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
 
 class CarRacingEnvironment:
-	def __init__(self, N_frame=4, test=False):
+	def __init__(self, N_frame=4, test=False, render=False):
 		self.test = test
-		if self.test:
+		self.env = gym.make('CarRacing-v2')
+		if render:
 			self.env = gym.make('CarRacing-v2', render_mode="human")
-		else:
-			self.env = gym.make('CarRacing-v2')
 		self.action_space = self.env.action_space
 		self.observation_space = self.env.observation_space
 		self.ep_len = 0
