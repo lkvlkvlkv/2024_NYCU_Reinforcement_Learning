@@ -111,7 +111,7 @@ class PPOBaseAgent(ABC):
 						
 						if episode_idx % self.eval_interval == 0:
 							# save model checkpoint
-							avg_score = self.evaluate()
+							avg_score, _ = self.evaluate()
 							self.save(os.path.join(self.writer.log_dir, f"model_{self.total_time_step}_{int(avg_score)}.pth"))
 							self.writer.add_scalar('Evaluate/Episode Reward', avg_score, self.total_time_step)
 				
@@ -120,15 +120,18 @@ class PPOBaseAgent(ABC):
 				
 			
 
-	def evaluate(self):
+	def evaluate(self, render=False):
 		print("==============================================")
 		print("Evaluating...")
 		all_rewards = []
+		frame_list = []
 		for i in range(self.eval_episode):
+			frames = []
 			observation, info = self.test_env.reset()
 			total_reward = 0
 			while True:
-				# self.test_env.render()
+				if render:
+					frames.append(self.test_env.render())
 				action, _, _ = self.decide_agent_actions(observation, eval=True)
 				next_observation, reward, terminate, truncate, info = self.test_env.step(action)
 				total_reward += reward
@@ -138,12 +141,13 @@ class PPOBaseAgent(ABC):
 					break
 
 				observation = next_observation
+			frame_list.append(frames)
 			
 
 		avg = sum(all_rewards) / self.eval_episode
 		print(f"average score: {avg}")
 		print("==============================================")
-		return avg
+		return avg, frame_list
 	
 	# save model
 	def save(self, save_path):
@@ -156,7 +160,8 @@ class PPOBaseAgent(ABC):
 	# load model weights and evaluate
 	def load_and_evaluate(self, load_path):
 		self.load(load_path)
-		self.evaluate()
+		_, frame_list = self.evaluate(render=True)
+		return frame_list
 
 
 	

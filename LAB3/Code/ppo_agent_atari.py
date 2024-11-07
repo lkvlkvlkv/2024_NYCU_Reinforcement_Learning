@@ -11,18 +11,16 @@ from models.atari_model import AtariNet
 import gymnasium as gym
 from gymnasium.wrappers import GrayscaleObservation, ResizeObservation, FrameStackObservation
 
-def make_env(env_id, repeat_action_probability=None, record_video=False):
+def make_env(env_id, repeat_action_probability=None):
 	def thunk():
 		if repeat_action_probability is not None:
-			env = gym.make(env_id, repeat_action_probability=repeat_action_probability)
+			env = gym.make(env_id, repeat_action_probability=repeat_action_probability, render_mode='rgb_array')
 		else:
 			env = gym.make(env_id)
 		env = GrayscaleObservation(env)
 		env = ResizeObservation(env, (84, 84))
 		env = FrameStackObservation(env, 4)
 		env = gym.wrappers.RecordEpisodeStatistics(env)
-		if record_video:
-			env = gym.wrappers.RecordVideo(env=env, path='./video', episode_trigger=lambda x: x % 100 == 0)
 		return env
 	return thunk
 
