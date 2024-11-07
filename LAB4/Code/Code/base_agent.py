@@ -55,6 +55,7 @@ class TD3BaseAgent(ABC):
 		self.gamma = config["gamma"]
 		self.tau = config["tau"]
 		self.update_freq = config["update_freq"]
+		self.update_target_freq = config["update_target_freq"]
 	
 		self.replay_buffer = ReplayMemory(int(config["replay_buffer_capacity"]))
 		self.writer = SummaryWriter(config["logdir"])
@@ -69,9 +70,10 @@ class TD3BaseAgent(ABC):
 	
 	def update(self):
 		# update the behavior networks
-		self.update_behavior_network()
-		# update the target networks
 		if self.total_time_step % self.update_freq == 0:
+			self.update_behavior_network()
+		# update the target networks
+		if self.total_time_step % self.update_target_freq == 0:
 			self.update_target_network(self.target_actor_net, self.actor_net, self.tau)
 			self.update_target_network(self.target_critic_net1, self.critic_net1, self.tau)
 			self.update_target_network(self.target_critic_net2, self.critic_net2, self.tau)
