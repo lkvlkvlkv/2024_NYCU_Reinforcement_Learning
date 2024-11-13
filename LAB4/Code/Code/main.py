@@ -1,6 +1,8 @@
 from td3_agent_CarRacing import CarRacingTD3Agent
+import time
 
 if __name__ == '__main__':
+	timestamp = time.strftime("%Y_%m_%d_%H_%M", time.localtime())
 	# my hyperparameters, you can change it as you like
 	config = {
 		"gpu": True,
@@ -13,7 +15,7 @@ if __name__ == '__main__':
 		"lra": 4.5e-5,
 		"lrc": 4.5e-5,
 		"replay_buffer_capacity": 5000,
-		"logdir": 'log/CarRacing/td3_test/',
+		"logdir": f'log/CarRacing/td3_test/{timestamp}/',
 		"update_freq": 1,
 		"update_target_freq": 2,
 		"eval_interval": 10,
