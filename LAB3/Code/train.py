@@ -3,6 +3,8 @@ import time
 
 if __name__ == '__main__':
 	timestamp = time.strftime("%Y_%m_%d_%H_%M", time.localtime())
+	import multiprocessing
+	multiprocessing.set_start_method('spawn', force=True)
 	config = {
 		"gpu": True,
 		"training_steps": 1e7,
