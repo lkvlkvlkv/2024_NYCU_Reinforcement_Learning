@@ -47,6 +47,7 @@ class CarRacingTD3Agent(TD3BaseAgent):
 		# self.noise = OUNoiseGenerator(noise_mean, noise_std)
 
 		self.noise = GaussianNoise(self.env.action_space.shape[0], 0.0, 1.0)
+		self.noise_clip = torch.tensor((self.env.action_space.high - self.env.action_space.low) * self.noise_clip_ratio, dtype=torch.float32).to(self.device)
 
 		self.min_action = torch.tensor(self.env.action_space.low, dtype=torch.float32).to(self.device)
 		self.max_action = torch.tensor(self.env.action_space.high, dtype=torch.float32).to(self.device)
@@ -75,33 +76,42 @@ class CarRacingTD3Agent(TD3BaseAgent):
 		## Update Critic ##
 		# critic loss
 		q_value1 = self.critic_net1(state, action)
-		q_value2 = self.critic_net2(state, action)
+		if self.twin_q_network:
+			q_value2 = self.critic_net2(state, action)
+
 		with torch.no_grad():
 			# select action a_next from target actor network and add noise for smoothing
-			a_next = self.target_actor_net(next_state, brake_rate=0.015) + torch.tensor(self.noise.generate(), dtype=torch.float32).to(self.device)
-			a_next = action.clamp(self.min_action, self.max_action)
+			a_next = self.target_actor_net(next_state, brake_rate=0.015)
+			if self.target_policy_smoothing:
+				noise = torch.tensor(self.noise.generate(), dtype=torch.float32).to(self.device).clamp(-self.noise_clip, self.noise_clip)
+				a_next = (a_next + noise).clamp(self.min_action, self.max_action)
 
-			q_next1 = self.target_critic_net1(next_state, a_next)
-			q_next2 = self.target_critic_net2(next_state, a_next)
+			q_next = self.target_critic_net1(next_state, a_next)
+			if self.twin_q_network:
+				q_next2 = self.target_critic_net2(next_state, a_next)
+				q_next = torch.min(q_next, q_next2)
+
 			# select min q value from q_next1 and q_next2 (double Q learning)
-			q_target = reward + self.gamma * (1 - done) * torch.min(q_next1, q_next2)
+			q_target = reward + self.gamma * (1 - done) * q_next
 		
 		# critic loss function
 		criterion = nn.MSELoss()
 		critic_loss1 = criterion(q_value1, q_target)
-		critic_loss2 = criterion(q_value2, q_target)
+		if self.twin_q_network:
+			critic_loss2 = criterion(q_value2, q_target)
 
 		# optimize critic
 		self.critic_net1.zero_grad()
 		critic_loss1.backward()
 		self.critic_opt1.step()
 
-		self.critic_net2.zero_grad()
-		critic_loss2.backward()
-		self.critic_opt2.step()
+		if self.twin_q_network:
+			self.critic_net2.zero_grad()
+			critic_loss2.backward()
+			self.critic_opt2.step()
 
 		## Delayed Actor(Policy) Updates ##
-		if self.total_time_step % self.update_freq == 0:
+		if self.total_time_step % self.update_freq == 0 or not self.delayed_policy_update:
 			## update actor ##
 			# actor loss
 			# select action a from behavior actor network (a is different from sample transition's action)

@@ -18,6 +18,10 @@ if __name__ == '__main__':
 		"update_target_freq": 2,
 		"eval_interval": 10,
 		"eval_episode": 10,
+		"noise_clip_ratio": 0.2,
+		"twin_q_network": True,
+		"target_policy_smoothing": True,
+		"delayed_policy_update": True
 	}
 	agent = CarRacingTD3Agent(config)
 	agent.train()
