@@ -21,6 +21,7 @@ class CarRacingEnvironment:
 		self.observation_space = self.env.observation_space
 		self.ep_len = 0
 		self.frames = deque(maxlen=N_frame)
+		self.initial_skip = 30
 	
 	def check_car_position(self, obs):
 		# cut the image to get the part where the car is
@@ -36,9 +37,13 @@ class CarRacingEnvironment:
 		road_pixel_count = cv2.countNonZero(road_mask)
 		grass_pixel_count = cv2.countNonZero(grass_mask)
 
+		# print('saving image for debugging...')
 		# save image for debugging
+		# import os
+		# os.makedirs('images', exist_ok=True)
 		# filename = "images/image" + str(self.ep_len) + ".jpg"
 		# cv2.imwrite(filename, part_image)
+		# exit()
 
 		return road_pixel_count, grass_pixel_count
 
@@ -77,6 +82,14 @@ class CarRacingEnvironment:
 	
 	def reset(self):
 		obs, info = self.env.reset()
+
+		no_op = np.zeros_like(self.action_space.sample())
+		for i in range(self.initial_skip):
+			obs, _, _, _, _ = self.env.step(no_op)
+			# save image for debugging
+			# filename = "images/image" + str(i) + ".jpg"
+			# cv2.imwrite(filename, obs)
+
 		self.ep_len = 0
 		obs = cv2.cvtColor(obs, cv2.COLOR_BGR2GRAY) # 96x96
 
