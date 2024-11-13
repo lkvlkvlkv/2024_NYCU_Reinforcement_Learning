@@ -56,6 +56,7 @@ class TD3BaseAgent(ABC):
 		self.tau = config["tau"]
 		self.update_freq = config["update_freq"]
 		self.update_target_freq = config["update_target_freq"]
+		self.policy_noise = config["policy_noise"]
 		self.noise_clip_ratio = config["noise_clip_ratio"]
 		self.twin_q_network = config["twin_q_network"]
 		self.target_policy_smoothing = config["target_policy_smoothing"]

@@ -83,7 +83,7 @@ class CarRacingTD3Agent(TD3BaseAgent):
 			# select action a_next from target actor network and add noise for smoothing
 			a_next = self.target_actor_net(next_state, brake_rate=0.015)
 			if self.target_policy_smoothing:
-				noise = torch.tensor(self.noise.generate(), dtype=torch.float32).to(self.device).clamp(-self.noise_clip, self.noise_clip)
+				noise = torch.tensor(self.policy_noise * self.noise.generate(), dtype=torch.float32).to(self.device).clamp(-self.noise_clip, self.noise_clip)
 				a_next = (a_next + noise).clamp(self.min_action, self.max_action)
 
 			q_next = self.target_critic_net1(next_state, a_next)
