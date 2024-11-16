@@ -25,7 +25,7 @@ class CarRacingEnvironment:
 	
 	def check_car_position(self, obs):
 		# cut the image to get the part where the car is
-		part_image = obs[60:84, 40:60, :]
+		part_image = obs[66-5:77+5, 47-6:49+6, :]
 
 		road_color_lower = np.array([90, 90, 90], dtype=np.uint8)
 		road_color_upper = np.array([120, 120, 120], dtype=np.uint8)
@@ -55,6 +55,10 @@ class CarRacingEnvironment:
 		road_pixel_count, grass_pixel_count = self.check_car_position(obs)
 		info["road_pixel_count"] = road_pixel_count
 		info["grass_pixel_count"] = grass_pixel_count
+		info["original_reward"] = original_reward
+		# reward shaping
+		reward = reward - 0.02 * grass_pixel_count
+		reward = reward + 0.001 * road_pixel_count
 
 		# my reward shaping strategy, you can try your own
 		if road_pixel_count < 10:

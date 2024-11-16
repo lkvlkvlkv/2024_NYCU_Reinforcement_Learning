@@ -114,7 +114,7 @@ class TD3BaseAgent(ABC):
 					sigma = 3 * max(0.1*(1-episode/self.total_episode), 0.01)
 					action = self.decide_agent_actions(state, sigma=sigma)
 				
-				next_state, reward, terminates, truncates, _ = self.env.step(action)
+				next_state, reward, terminates, truncates, info = self.env.step(action)
 				self.replay_buffer.append(state, action, [reward/10], next_state, [int(terminates)])
 				if self.total_time_step >= self.warmup_steps:
 					self.update()
@@ -125,8 +125,8 @@ class TD3BaseAgent(ABC):
 				if terminates or truncates:
 					self.writer.add_scalar('Train/Episode Reward', total_reward, self.total_time_step)
 					print(
-						'Step: {}\tEpisode: {}\tLength: {:3d}\tTotal reward: {:.2f}\t TimeStamp: {}'
-						.format(self.total_time_step, episode+1, t, total_reward, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
+						'Step: {}\tEpisode: {}\tLength: {:3d}\tTotal reward: {:.2f}\t Original reward: {:.2f}\t TimeStamp: {}'
+						.format(self.total_time_step, episode+1, t, total_reward, info["original_reward"], time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
 				
 					break
 			
