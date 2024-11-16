@@ -103,6 +103,7 @@ class TD3BaseAgent(ABC):
 	def train(self):
 		for episode in range(self.total_episode):
 			total_reward = 0
+			total_original_reward = 0
 			state, infos = self.env.reset()
 			self.noise.reset()
 			for t in range(10000):
@@ -110,8 +111,8 @@ class TD3BaseAgent(ABC):
 					action = self.env.action_space.sample()
 				else:
 					# exploration degree
-					# sigma = max(0.1*(1-episode/self.total_episode), 0.01)
-					sigma = 3 * max(0.1*(1-episode/self.total_episode), 0.01)
+					sigma = max(0.1*(1-episode/self.total_episode), 0.01)
+					# sigma = 3 * max(0.1*(1-episode/self.total_episode), 0.01)
 					action = self.decide_agent_actions(state, sigma=sigma)
 				
 				next_state, reward, terminates, truncates, info = self.env.step(action)
@@ -121,12 +122,13 @@ class TD3BaseAgent(ABC):
 
 				self.total_time_step += 1
 				total_reward += reward
+				total_original_reward += info["original_reward"]
 				state = next_state
 				if terminates or truncates:
 					self.writer.add_scalar('Train/Episode Reward', total_reward, self.total_time_step)
 					print(
 						'Step: {}\tEpisode: {}\tLength: {:3d}\tTotal reward: {:.2f}\t Original reward: {:.2f}\t TimeStamp: {}'
-						.format(self.total_time_step, episode+1, t, total_reward, info["original_reward"], time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
+						.format(self.total_time_step, episode+1, t, total_reward, total_original_reward, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
 				
 					break
 			
