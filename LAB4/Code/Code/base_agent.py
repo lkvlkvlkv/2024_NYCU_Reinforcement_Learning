@@ -110,7 +110,8 @@ class TD3BaseAgent(ABC):
 					action = self.env.action_space.sample()
 				else:
 					# exploration degree
-					sigma = max(0.1*(1-episode/self.total_episode), 0.01)
+					# sigma = max(0.1*(1-episode/self.total_episode), 0.01)
+					sigma = 3 * max(0.1*(1-episode/self.total_episode), 0.01)
 					action = self.decide_agent_actions(state, sigma=sigma)
 				
 				next_state, reward, terminates, truncates, _ = self.env.step(action)
