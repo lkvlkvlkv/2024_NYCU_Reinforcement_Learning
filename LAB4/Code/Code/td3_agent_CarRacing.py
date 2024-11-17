@@ -81,7 +81,7 @@ class CarRacingTD3Agent(TD3BaseAgent):
 
 		with torch.no_grad():
 			# select action a_next from target actor network and add noise for smoothing
-			a_next = self.target_actor_net(next_state, brake_rate=0.015)
+			a_next = self.target_actor_net(next_state, brake_rate=self.brake_rate)
 			if self.target_policy_smoothing:
 				noise = torch.tensor(self.policy_noise * self.noise.generate(), dtype=torch.float32).to(self.device).clamp(-self.noise_clip, self.noise_clip)
 				a_next = (a_next + noise).clamp(self.min_action, self.max_action)
@@ -117,7 +117,7 @@ class CarRacingTD3Agent(TD3BaseAgent):
 			# select action a from behavior actor network (a is different from sample transition's action)
 			# get Q from behavior critic network, mean Q value -> objective function
 			# maximize (objective function) = minimize -1 * (objective function)
-			a_next = self.actor_net(next_state, brake_rate=0.015)
+			a_next = self.actor_net(next_state, brake_rate=self.brake_rate)
 			actor_loss = -1 * self.critic_net1(state, a_next).mean()
 			# optimize actor
 			self.actor_net.zero_grad()

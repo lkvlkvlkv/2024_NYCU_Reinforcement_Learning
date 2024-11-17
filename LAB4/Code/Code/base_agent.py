@@ -61,6 +61,7 @@ class TD3BaseAgent(ABC):
 		self.twin_q_network = config["twin_q_network"]
 		self.target_policy_smoothing = config["target_policy_smoothing"]
 		self.delayed_policy_update = config["delayed_policy_update"]
+		self.brake_rate = config["brake_rate"]
 	
 		self.replay_buffer = ReplayMemory(int(config["replay_buffer_capacity"]))
 		self.writer = SummaryWriter(config["logdir"])
@@ -113,7 +114,7 @@ class TD3BaseAgent(ABC):
 					# exploration degree
 					sigma = max(0.1*(1-episode/self.total_episode), 0.01)
 					# sigma = 3 * max(0.1*(1-episode/self.total_episode), 0.01)
-					action = self.decide_agent_actions(state, sigma=sigma)
+					action = self.decide_agent_actions(state, sigma=sigma, brake_rate=self.brake_rate)
 				
 				next_state, reward, terminates, truncates, info = self.env.step(action)
 				self.replay_buffer.append(state, action, [reward/10], next_state, [int(terminates)])

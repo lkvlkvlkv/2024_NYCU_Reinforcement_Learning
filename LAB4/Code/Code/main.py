@@ -24,7 +24,8 @@ if __name__ == '__main__':
 		"noise_clip_ratio": 0.1,
 		"twin_q_network": True,
 		"target_policy_smoothing": True,
-		"delayed_policy_update": True
+		"delayed_policy_update": True,
+		"brake_rate": 0.015
 	}
 	agent = CarRacingTD3Agent(config)
 	agent.train()
