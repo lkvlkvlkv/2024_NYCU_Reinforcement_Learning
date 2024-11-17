@@ -57,13 +57,13 @@ class CarRacingEnvironment:
 		info["grass_pixel_count"] = grass_pixel_count
 		info["original_reward"] = original_reward
 		# reward shaping
-		reward = reward - 0.02 * grass_pixel_count
-		reward = reward + 0.001 * road_pixel_count
+		reward = reward - 0.03 * grass_pixel_count
+		reward = reward + 0.002 * road_pixel_count
 
 		# my reward shaping strategy, you can try your own
-		if road_pixel_count < 10:
-			terminates = True
-			reward = -100
+		# if road_pixel_count < 10:
+		# 	terminates = True
+		# 	reward = -100
 
 		# convert to grayscale
 		obs = cv2.cvtColor(obs, cv2.COLOR_BGR2GRAY) # 96x96
