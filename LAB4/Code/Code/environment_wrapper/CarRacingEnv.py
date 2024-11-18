@@ -16,7 +16,7 @@ class CarRacingEnvironment:
 		self.test = test
 		self.env = gym.make('CarRacing-v2')
 		if render:
-			self.env = gym.make('CarRacing-v2', render_mode="human")
+			self.env = gym.make('CarRacing-v2', render_mode="rgb_array")
 		self.action_space = self.env.action_space
 		self.observation_space = self.env.observation_space
 		self.ep_len = 0
@@ -105,7 +105,7 @@ class CarRacingEnvironment:
 		return obs, info
 	
 	def render(self):
-		self.env.render()
+		return self.env.render()
 	
 	def close(self):
 		self.env.close()

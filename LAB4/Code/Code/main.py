@@ -28,6 +28,10 @@ if __name__ == '__main__':
 		"brake_rate": 0.015
 	}
 	agent = CarRacingTD3Agent(config)
-	agent.train()
-
-
+	# agent.train()
+	load_path = 'log/CarRacing/best/model_1142585_916.pth'
+	frame_list = agent.load_and_evaluate(load_path)
+	import moviepy.editor as mpy
+	for i, frames in enumerate(frame_list):
+		clip = mpy.ImageSequenceClip(frames, fps=30)
+		clip.write_videofile(f'log/CarRacing/best/Episode_{i}.mp4')

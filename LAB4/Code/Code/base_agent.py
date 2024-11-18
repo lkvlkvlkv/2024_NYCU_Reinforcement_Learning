@@ -135,18 +135,22 @@ class TD3BaseAgent(ABC):
 			
 			if (episode+1) % self.eval_interval == 0:
 				# save model checkpoint
-				avg_score = self.evaluate()
+				avg_score, _ = self.evaluate()
 				self.save(os.path.join(self.writer.log_dir, f"model_{self.total_time_step}_{int(avg_score)}.pth"))
 				self.writer.add_scalar('Evaluate/Episode Reward', avg_score, self.total_time_step)
 
-	def evaluate(self):
+	def evaluate(self, render=False):
 		print("==============================================")
 		print("Evaluating...")
 		all_rewards = []
+		frame_list = []
 		for episode in range(self.eval_episode):
 			total_reward = 0
 			state, infos = self.test_env.reset()
+			frames = []
 			for t in range(10000):
+				if render:
+					frames.append(self.test_env.render())
 				action = self.decide_agent_actions(state)
 				next_state, reward, terminates, truncates, _ = self.test_env.step(action)
 				total_reward += reward
@@ -157,11 +161,12 @@ class TD3BaseAgent(ABC):
 						.format(episode+1, t, total_reward))
 					all_rewards.append(total_reward)
 					break
+			frame_list.append(frames)
 
 		avg = sum(all_rewards) / self.eval_episode
 		print(f"average score: {avg}")
 		print("==============================================")
-		return avg
+		return avg, frame_list
 	
 	# save model
 	def save(self, save_path):
@@ -182,5 +187,6 @@ class TD3BaseAgent(ABC):
 	# load model weights and evaluate
 	def load_and_evaluate(self, load_path):
 		self.load(load_path)
-		self.evaluate()
+		_, frame_list = self.evaluate(render=True)
+		return frame_list
 
