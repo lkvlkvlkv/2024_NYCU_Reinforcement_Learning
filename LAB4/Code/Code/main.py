@@ -29,7 +29,7 @@ if __name__ == '__main__':
 	}
 	agent = CarRacingTD3Agent(config)
 	# agent.train()
-	load_path = 'log/CarRacing/best/model_1142585_916.pth'
+	load_path = 'log/CarRacing/best/model_2214072_915.pth'
 	frame_list = agent.load_and_evaluate(load_path)
 	import moviepy.editor as mpy
 	for i, frames in enumerate(frame_list):
