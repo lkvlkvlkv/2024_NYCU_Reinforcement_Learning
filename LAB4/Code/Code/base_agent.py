@@ -139,14 +139,14 @@ class TD3BaseAgent(ABC):
 				self.save(os.path.join(self.writer.log_dir, f"model_{self.total_time_step}_{int(avg_score)}.pth"))
 				self.writer.add_scalar('Evaluate/Episode Reward', avg_score, self.total_time_step)
 
-	def evaluate(self, render=False):
+	def evaluate(self, render=False, seed=None):
 		print("==============================================")
 		print("Evaluating...")
 		all_rewards = []
 		frame_list = []
 		for episode in range(self.eval_episode):
 			total_reward = 0
-			state, infos = self.test_env.reset()
+			state, infos = self.test_env.reset(seed=seed)
 			frames = []
 			for t in range(10000):
 				if render:
@@ -185,8 +185,11 @@ class TD3BaseAgent(ABC):
 		self.critic_net2.load_state_dict(checkpoint['critic2'])
 
 	# load model weights and evaluate
-	def load_and_evaluate(self, load_path):
+	def load_and_evaluate(self, load_path, seeds=[]):
 		self.load(load_path)
-		_, frame_list = self.evaluate(render=True)
+		frame_list = []
+		for seed in seeds:
+			_, frames = self.evaluate(render=True, seed=seed)
+			frame_list.append(frames)
 		return frame_list
 

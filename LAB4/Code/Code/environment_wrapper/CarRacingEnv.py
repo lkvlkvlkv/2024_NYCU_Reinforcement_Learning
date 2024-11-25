@@ -84,8 +84,8 @@ class CarRacingEnvironment:
 
 		return obs, reward, terminates, truncates, info
 	
-	def reset(self):
-		obs, info = self.env.reset()
+	def reset(self, seed=None):
+		obs, info = self.env.reset(seed=seed)
 
 		no_op = np.zeros_like(self.action_space.sample())
 		for i in range(self.initial_skip):

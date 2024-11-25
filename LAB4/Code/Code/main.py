@@ -19,7 +19,7 @@ if __name__ == '__main__':
 		"update_freq": 1,
 		"update_target_freq": 2,
 		"eval_interval": 10,
-		"eval_episode": 10,
+		"eval_episode": 1,
 		"policy_noise": 0.05,
 		"noise_clip_ratio": 0.1,
 		"twin_q_network": True,
@@ -30,8 +30,9 @@ if __name__ == '__main__':
 	agent = CarRacingTD3Agent(config)
 	# agent.train()
 	load_path = 'log/CarRacing/best/model_2214072_915.pth'
-	frame_list = agent.load_and_evaluate(load_path)
+	seeds = [3128, 6727, 8843, 7021, 2712]
+	frame_list = agent.load_and_evaluate(load_path, seeds=seeds)
 	import moviepy.editor as mpy
 	for i, frames in enumerate(frame_list):
 		clip = mpy.ImageSequenceClip(frames, fps=30)
-		clip.write_videofile(f'log/CarRacing/best/Episode_{i}.mp4')
+		clip.write_videofile(f'log/CarRacing/best/seed_{seeds[i]}.mp4')
