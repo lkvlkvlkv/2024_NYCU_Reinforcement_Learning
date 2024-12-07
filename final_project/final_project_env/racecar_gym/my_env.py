@@ -26,6 +26,7 @@ class RaceEnv(gym.Env):
                  scenario: str,
                  render_mode: str = 'rgb_array_birds_eye',
                  reset_when_collision: bool = True,
+                 random_start: bool = True,
                  **kwargs):
         self.scenario = scenario.upper()[0] + scenario.lower()[1:]
         self.env_id = f'SingleAgent{self.scenario}-v0'
@@ -40,15 +41,23 @@ class RaceEnv(gym.Env):
         # noinspection PyUnresolvedReferences
         observation_spaces = {k: v for k, v in self.env.observation_space.items()}
         assert self.camera_name in observation_spaces, f'One of the sensors must be {self.camera_name}. Check the scenario file.'
-        self.observation_space = gym.spaces.Box(low=0, high=255, shape=(3, 128, 128), dtype=np.uint8)
+        self.observation_space = gym.spaces.Box(low=0, high=255, shape=(128, 128, 3), dtype=np.uint8)
         #
         self.cur_step = 0
+        self.random_start = random_start
 
     def observation_postprocess(self, obs):
-        obs = obs[self.camera_name].astype(np.uint8).transpose(2, 0, 1)
+        # obs = obs[self.camera_name].astype(np.uint8).transpose(2, 0, 1)
+        obs = obs[self.camera_name].astype(np.uint8)
         return obs
 
     def reset(self, *args, **kwargs: dict):
+        if self.random_start:
+            if kwargs.get('options'):
+                kwargs['options']['mode'] = 'random'
+            else:
+                kwargs['options'] = {'mode': 'random'}
+            
         self.cur_step = 0
         obs, *others = self.env.reset(*args, **kwargs)
         obs = self.observation_postprocess(obs)
