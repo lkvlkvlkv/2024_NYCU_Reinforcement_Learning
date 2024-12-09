@@ -7,7 +7,7 @@ agents:
       actuators: [ motor_competition, steering_competition ]
       sensors: [ camera_competition ]
     task:
-      task_name: maximize_progress_action_reg_mask_obstacle
+      task_name: maximize_progress_action_reg_obstacle_penalty
       params: {
         laps: 99999999999,
         time_limit: 100.0, # <---
