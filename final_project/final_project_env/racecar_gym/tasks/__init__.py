@@ -1,6 +1,6 @@
 from typing import Type
 from .task import Task
-from .progress_based import MaximizeProgressTask, RankDiscountedMaximizeProgressTask, MaximizeProgressRegularizeAction, MaximizeProgressTaskCollisionInfluenceTimeLimit
+from .progress_based import MaximizeProgressTask, MaximizeProgressRegularizeAction, MaximizeProgressTaskCollisionInfluenceTimeLimit, MaximizeProgressMaskObstacleTask, MaximizeProgressRegularizeActionObstaclePenaltyTask
 from .tracking import WaypointFollow
 
 _registry = {}
@@ -16,5 +16,6 @@ def register_task(name: str, task: Type[Task]):
 register_task('maximize_progress', task=MaximizeProgressTask)
 register_task('maximize_progress_collision_time_reduce', task=MaximizeProgressTaskCollisionInfluenceTimeLimit)
 register_task('maximize_progress_action_reg', task=MaximizeProgressRegularizeAction)
-register_task('maximize_progress_ranked', task=RankDiscountedMaximizeProgressTask)
+register_task('maximize_progress_mask_obstacle', task=MaximizeProgressMaskObstacleTask)
+register_task('maximize_progress_action_reg_obstacle_penalty', task=MaximizeProgressRegularizeActionObstaclePenaltyTask)
 register_task('max_tracking', task=WaypointFollow)
