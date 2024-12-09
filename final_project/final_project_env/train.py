@@ -5,7 +5,7 @@ from stable_baselines3.common.callbacks import EvalCallback
 from stable_baselines3.common.vec_env import VecFrameStack, VecNormalize, VecTransposeImage, VecMonitor
 from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv
 from racecar_gym.my_env import RaceEnv
-from sbx import PPO
+from stable_baselines3 import PPO
 from gymnasium.wrappers import GrayscaleObservation, ResizeObservation
 
 
@@ -71,7 +71,7 @@ class ScoreEvalCallback(EvalCallback):
 
 if __name__ == '__main__':
     total_timesteps = 1e7
-    agent_count = 1
+    agent_count = 8
 
     # train_env = SubprocVecEnv([make_env() for _ in range(agent_count)])
     train_env = SubprocVecEnv([make_env() for _ in range(agent_count)])
@@ -89,14 +89,13 @@ if __name__ == '__main__':
     score_callback = ScoreEvalCallback(
         eval_env=test_env,
         n_eval_episodes=1,
-        # eval_freq=50000,
-        eval_freq=1000,
+        eval_freq=10000,
         deterministic=True,
         best_model_save_path='models/',
     )
 
     model = PPO(
-        'MlpPolicy',
+        'CnnPolicy',
         env=train_env,
         learning_rate=0.0001,
         verbose=1,
