@@ -28,46 +28,61 @@ class ScoreEvalCallback(EvalCallback):
     def __init__(self, eval_env, verbose=1, **kwargs):
         super(ScoreEvalCallback, self).__init__(eval_env, verbose=verbose, **kwargs)
         self.best_mean_score = -np.inf
+        self.best_mean_reward = -np.inf
 
     def _on_step(self) -> bool:
-        continue_training = super(ScoreEvalCallback, self)._on_step()
-
         if self.eval_freq == 0 or self.n_calls % self.eval_freq != 0:
-            return continue_training
+            return True
 
-        print('calling _on_step')
         obs = self.eval_env.reset()
+        total_rewards = np.zeros(self.eval_env.num_envs)
+        episode_lengths = np.zeros(self.eval_env.num_envs)
         dones = [False] * self.eval_env.num_envs
         scores = np.zeros(self.eval_env.num_envs)
         while not all(dones):
             actions, _ = self.model.predict(obs, deterministic=self.deterministic)
-            obs, _, done_flags, infos = self.eval_env.step(actions)
+            obs, rewards, done_flags, infos = self.eval_env.step(actions)
 
-            # 只提取剛完成的 episode 的資訊
+            total_rewards += rewards
             for idx, done in enumerate(done_flags):
                 if done:
                     info = infos[idx]
+                    episode_lengths[idx] = info["episode"]["l"]
                     if "lap" in info and "progress" in info:
                         scores[idx] = info["lap"] + info["progress"] - 1
 
             dones = [d or done for d, done in zip(dones, done_flags)]
 
-        # 計算平均值
+        mean_length = np.mean(episode_lengths)
+        self.logger.record("eval/mean_length", mean_length)
+
+        mean_reward = np.mean(total_rewards)
+        self.logger.record("eval/mean_reward", mean_reward)
+
         mean_score = np.mean(scores)
         self.logger.record("eval/mean_progress", mean_score)
 
-        # 更新最佳模型依據
+        if self.best_mean_reward < mean_reward:
+            self.best_mean_reward = mean_reward
+            if self.verbose > 0:
+                print(f"New best reward: {self.best_mean_reward}")
+            
+            if self.best_model_save_path is not None:
+                self.model.save(f"{self.best_model_save_path}/best_reward_model")
+                if self.verbose > 0:
+                    print(f"Saving new best reward model to {self.best_model_save_path}")
+
         if mean_score > self.best_mean_score:
             self.best_mean_score = mean_score
             if self.verbose > 0:
                 print(f"New best score: {self.best_mean_score}")
-            # 保存最佳模型
-            if self.best_model_save_path is not None:
-                self.model.save(f"{self.best_model_save_path}/best_model")
-                if self.verbose > 0:
-                    print(f"Saving new best model to {self.best_model_save_path}")
 
-        return continue_training
+            if self.best_model_save_path is not None:
+                self.model.save(f"{self.best_model_save_path}/best_progress_model")
+                if self.verbose > 0:
+                    print(f"Saving new best progress model to {self.best_model_save_path}")
+
+        return True
 
 
 if __name__ == '__main__':
