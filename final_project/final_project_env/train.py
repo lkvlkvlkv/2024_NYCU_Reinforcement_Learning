@@ -7,12 +7,13 @@ from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv
 from racecar_gym.my_env import RaceEnv
 from stable_baselines3 import PPO
 from gymnasium.wrappers import GrayscaleObservation, ResizeObservation
+import time
 
 
-def make_env(random_start=True, **kwargs):
+def make_env(scenario='austria_competition', random_start=True, **kwargs):
     def thunk():
         env = RaceEnv(
-            scenario='austria_competition',
+            scenario=scenario,
             render_mode='rgb_array_birds_eye',
             random_start=random_start,
             **kwargs
@@ -70,6 +71,7 @@ class ScoreEvalCallback(EvalCallback):
 
 
 if __name__ == '__main__':
+    scenario = 'circle_cw_competition_collisionStop_v1'
     total_timesteps = 1e7
     agent_count = 8
     eval_count = 5
@@ -92,7 +94,7 @@ if __name__ == '__main__':
         n_eval_episodes=1,
         eval_freq=10000,
         deterministic=True,
-        best_model_save_path='models/',
+        best_model_save_path=f'models/{time.strftime("%m%d-%H%M")}/',
     )
 
     model = PPO(
