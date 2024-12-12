@@ -36,19 +36,26 @@ if __name__ == '__main__':
     parser.add_argument('--url', type=str, default='http://localhost:5000', help='The url of the server.')
     args = parser.parse_args()
 
+    # class RandomAgent:
+    #     def __init__(self, action_space):
+    #         self.action_space = action_space
 
-    class RandomAgent:
-        def __init__(self, action_space):
-            self.action_space = action_space
-
-        def act(self, observation):
-            return self.action_space.sample()
+    #     def act(self, observation):
+    #         return self.action_space.sample()
 
 
-    # Initialize the RL Agent
+    # # Initialize the RL Agent
     import gymnasium as gym
 
-    rand_agent = RandomAgent(
-        action_space=gym.spaces.Box(low=np.array([-1, -1]), high=np.array([1, 1]), dtype=np.float32))
+    # rand_agent = RandomAgent(
+    #     action_space=gym.spaces.Box(low=np.array([-1, -1]), high=np.array([1, 1]), dtype=np.float32))
 
-    connect(rand_agent, url=args.url)
+    # connect(rand_agent, url=args.url)
+
+    from evaluate import PPOAgent
+
+    ppo_agent = PPOAgent(
+        action_space=gym.spaces.Box(low=np.array([-1, -1]), high=np.array([1, 1]), dtype=np.float32),
+        model_path='models/best_model'
+    )
+    connect(ppo_agent, url=args.url)
