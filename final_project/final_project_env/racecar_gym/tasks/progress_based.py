@@ -150,3 +150,24 @@ class MaximizeProgressRegularizeActionObstaclePenaltyTask(MaximizeProgressRegula
         distance_to_obstacle = state[agent_id]['obstacle']
         progress_reward -= (1 - distance_to_obstacle) * self._obstacle_penalty
         return progress_reward
+
+class MaximizeProgressVelocityObstaclePenaltyTask(MaximizeProgressRegularizeActionObstaclePenaltyTask):
+    def __init__(self, laps: int, time_limit: float, terminate_on_collision: bool,
+                 delta_progress=0.0,
+                 collision_reward=0,
+                 frame_reward=0,
+                 progress_reward=100,
+                 n_min_rays_termination=1080,
+                 collision_penalty_time_reduce=40.,
+                 action_reg=0.25,
+                 obstacle_penalty=20.0,
+                 velocity_reward=20.0):
+        super().__init__(laps, time_limit, terminate_on_collision, delta_progress, collision_reward, frame_reward,
+                         progress_reward, n_min_rays_termination, collision_penalty_time_reduce, action_reg, obstacle_penalty)
+        self._velocity_reward = velocity_reward
+
+    def reward(self, agent_id, state, action) -> float:
+        progress_reward = super().reward(agent_id, state, action)
+        velocity = state[agent_id]['velocity']
+        progress_reward += velocity * self._velocity_reward
+        return progress_reward
