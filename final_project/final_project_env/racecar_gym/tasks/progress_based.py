@@ -168,6 +168,6 @@ class MaximizeProgressVelocityObstaclePenaltyTask(MaximizeProgressRegularizeActi
 
     def reward(self, agent_id, state, action) -> float:
         progress_reward = super().reward(agent_id, state, action)
-        velocity = state[agent_id]['velocity']
+        velocity = np.linalg.norm(state[agent_id]['velocity'][:2])
         progress_reward += velocity * self._velocity_reward
         return progress_reward
