@@ -92,13 +92,13 @@ if __name__ == '__main__':
     eval_count = 5
 
     # train_env = SubprocVecEnv([make_env() for _ in range(agent_count)])
-    train_env = SubprocVecEnv([make_env() for _ in range(agent_count)])
+    train_env = SubprocVecEnv([make_env(scenario=scenario) for _ in range(agent_count)])
     train_env = VecTransposeImage(train_env)
     train_env = VecFrameStack(train_env, n_stack=4, channels_order='first')
     train_env = VecNormalize(train_env, norm_obs=False, norm_reward=True)
     train_env = VecMonitor(train_env)
 
-    test_env = SubprocVecEnv([make_env(random_start=False) for _ in range(eval_count)])
+    test_env = SubprocVecEnv([make_env(scenario=scenario,random_start=False) for _ in range(eval_count)])
     test_env = VecTransposeImage(test_env)
     test_env = VecFrameStack(test_env, n_stack=4, channels_order='first')
     test_env = VecNormalize(test_env, norm_obs=False, norm_reward=True)
@@ -109,7 +109,7 @@ if __name__ == '__main__':
         n_eval_episodes=1,
         eval_freq=10000,
         deterministic=True,
-        best_model_save_path=f'models/{time.strftime("%m%d-%H%M")}/',
+        best_model_save_path=f'models/{time.strftime("%m%d_%H%M")}/',
     )
 
     model = PPO(
