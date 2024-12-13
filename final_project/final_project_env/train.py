@@ -1,7 +1,7 @@
 import os
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 import numpy as np
-from stable_baselines3.common.callbacks import EvalCallback
+from stable_baselines3.common.callbacks import EvalCallback, CheckpointCallback
 from stable_baselines3.common.vec_env import VecFrameStack, VecNormalize, VecTransposeImage, VecMonitor
 from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv
 from racecar_gym.my_env import RaceEnv
@@ -16,6 +16,7 @@ def make_env(scenario='austria_competition', random_start=True, **kwargs):
             scenario=scenario,
             render_mode='rgb_array_birds_eye',
             random_start=random_start,
+            reset_when_collision=False,
             **kwargs
         )
         env = ResizeObservation(env, shape=(84, 84))
@@ -111,6 +112,7 @@ if __name__ == '__main__':
         deterministic=True,
         best_model_save_path=f'models/{time.strftime("%m%d_%H%M")}/',
     )
+    checkpoint_callback = CheckpointCallback(save_freq=50000, save_path=f'models/{time.strftime("%m%d_%H%M")}/', name_prefix='freq_saving')
 
     model = PPO(
         'CnnPolicy',
@@ -120,5 +122,5 @@ if __name__ == '__main__':
         tensorboard_log='logs/tensorboard/',
     )
 
-    model.learn(total_timesteps=total_timesteps, callback=[score_callback])
+    model.learn(total_timesteps=total_timesteps, callback=[score_callback, checkpoint_callback])
     model.save('models/final_model')
