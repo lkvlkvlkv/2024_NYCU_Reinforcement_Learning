@@ -151,6 +151,26 @@ class MaximizeProgressRegularizeActionObstaclePenaltyTask(MaximizeProgressRegula
         progress_reward -= (1 - distance_to_obstacle) * self._obstacle_penalty
         return progress_reward
 
+class MaximizeProgressRegularizeActionObstacleMaskTask(MaximizeProgressRegularizeAction):
+    def __init__(self, laps: int, time_limit: float, terminate_on_collision: bool,
+                 delta_progress=0.0,
+                 collision_reward=0,
+                 frame_reward=0,
+                 progress_reward=100,
+                 n_min_rays_termination=1080,
+                 collision_penalty_time_reduce=40.,
+                 action_reg=0.25):
+        super().__init__(laps, time_limit, terminate_on_collision, delta_progress, collision_reward, frame_reward,
+                         progress_reward, n_min_rays_termination, collision_penalty_time_reduce, action_reg)
+
+    def reward(self, agent_id, state, action) -> float:
+        progress_reward = super().reward(agent_id, state, action)
+        distance_to_obstacle = state[agent_id]['obstacle']
+        if distance_to_obstacle < .3:  # max distance = 1, meaning perfectly centered in the widest point of the track
+            return 0.0
+        else:
+            return progress_reward
+
 class MaximizeProgressVelocityObstaclePenaltyTask(MaximizeProgressRegularizeActionObstaclePenaltyTask):
     def __init__(self, laps: int, time_limit: float, terminate_on_collision: bool,
                  delta_progress=0.0,
