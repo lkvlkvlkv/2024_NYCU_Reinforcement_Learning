@@ -29,12 +29,13 @@ class MaximizeProgressTask(Task):
             delta = abs(progress - self._last_stored_progress)
             if delta > .5:  # the agent is crossing the starting line in the wrong direction
                 delta = (1 - progress) + self._last_stored_progress
-        reward = self._frame_reward
         if self._check_collision(agent_state):
-            reward += self._collision_reward
-        reward += delta * self._progress_reward
+            self.collision_reward = self._collision_reward
+        else:
+            self.collision_reward = 0.0
+        self.progress_reward = delta * self._progress_reward
         self._last_stored_progress = progress
-        return reward
+        return self._frame_reward + self.progress_reward + self.collision_reward
 
     def done(self, agent_id, state) -> bool:
         agent_state = state[agent_id]
@@ -95,12 +96,12 @@ class MaximizeProgressMaskObstacleTask(MaximizeProgressTaskCollisionInfluenceTim
                          progress_reward, n_min_rays_termination, collision_penalty_time_reduce)
 
     def reward(self, agent_id, state, action) -> float:
-        progress_reward = super().reward(agent_id, state, action)
+        super().reward(agent_id, state, action)
         distance_to_obstacle = state[agent_id]['obstacle']
         if distance_to_obstacle < .3:  # max distance = 1, meaning perfectly centered in the widest point of the track
-            return 0.0
+            return 0.0 + self.collision_reward + self._frame_reward
         else:
-            return progress_reward
+            return self.progress_reward + self.collision_reward + self._frame_reward
 
 
 class MaximizeProgressRegularizeAction(MaximizeProgressTaskCollisionInfluenceTimeLimit):
@@ -123,12 +124,12 @@ class MaximizeProgressRegularizeAction(MaximizeProgressTaskCollisionInfluenceTim
 
     def reward(self, agent_id, state, action) -> float:
         """ Progress-based with action regularization: penalize sharp change in control"""
-        reward = super().reward(agent_id, state, action)
+        super().reward(agent_id, state, action)
         action = np.array(list(action.values()))
         if self._last_action is not None:
-            reward -= self._action_reg * np.linalg.norm(action - self._last_action)
+            self.regularization_penalty = -self._action_reg * np.linalg.norm(action - self._last_action)
         self._last_action = action
-        return reward
+        return self.progress_reward + self.collision_reward + self._frame_reward + self.regularization_penalty
 
 
 class MaximizeProgressRegularizeActionObstaclePenaltyTask(MaximizeProgressRegularizeAction):
@@ -146,10 +147,10 @@ class MaximizeProgressRegularizeActionObstaclePenaltyTask(MaximizeProgressRegula
         self._obstacle_penalty = obstacle_penalty
 
     def reward(self, agent_id, state, action) -> float:
-        progress_reward = super().reward(agent_id, state, action)
+        super().reward(agent_id, state, action)
         distance_to_obstacle = state[agent_id]['obstacle']
-        progress_reward -= (1 - distance_to_obstacle) * self._obstacle_penalty
-        return progress_reward
+        self.obstacle_penalty = -self._obstacle_penalty * (1 - distance_to_obstacle)
+        return self.progress_reward + self.collision_reward + self._frame_reward + self.regularization_penalty + self.obstacle_penalty
 
 class MaximizeProgressRegularizeActionObstacleMaskTask(MaximizeProgressRegularizeAction):
     def __init__(self, laps: int, time_limit: float, terminate_on_collision: bool,
@@ -164,12 +165,12 @@ class MaximizeProgressRegularizeActionObstacleMaskTask(MaximizeProgressRegulariz
                          progress_reward, n_min_rays_termination, collision_penalty_time_reduce, action_reg)
 
     def reward(self, agent_id, state, action) -> float:
-        progress_reward = super().reward(agent_id, state, action)
+        super().reward(agent_id, state, action)
         distance_to_obstacle = state[agent_id]['obstacle']
         if distance_to_obstacle < .3:  # max distance = 1, meaning perfectly centered in the widest point of the track
-            return 0.0
+            return 0.0 + self.collision_reward + self._frame_reward + self.regularization_penalty
         else:
-            return progress_reward
+            return self.progress_reward + self.collision_reward + self._frame_reward + self.regularization_penalty
 
 class MaximizeProgressVelocityObstaclePenaltyTask(MaximizeProgressRegularizeActionObstaclePenaltyTask):
     def __init__(self, laps: int, time_limit: float, terminate_on_collision: bool,
@@ -187,7 +188,7 @@ class MaximizeProgressVelocityObstaclePenaltyTask(MaximizeProgressRegularizeActi
         self._velocity_reward = velocity_reward
 
     def reward(self, agent_id, state, action) -> float:
-        progress_reward = super().reward(agent_id, state, action)
+        super().reward(agent_id, state, action)
         velocity = np.linalg.norm(state[agent_id]['velocity'][:2])
-        progress_reward += velocity * self._velocity_reward
-        return progress_reward
+        self.velocity_reward = velocity * self._velocity_reward
+        return self.progress_reward + self.collision_reward + self._frame_reward + self.regularization_penalty + self.obstacle_penalty + self.velocity_reward
