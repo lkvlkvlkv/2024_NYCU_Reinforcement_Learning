@@ -128,6 +128,8 @@ class MaximizeProgressRegularizeAction(MaximizeProgressTaskCollisionInfluenceTim
         action = np.array(list(action.values()))
         if self._last_action is not None:
             self.regularization_penalty = -self._action_reg * np.linalg.norm(action - self._last_action)
+        else:
+            self.regularization_penalty = 0.0
         self._last_action = action
         return self.progress_reward + self.collision_reward + self._frame_reward + self.regularization_penalty
 
