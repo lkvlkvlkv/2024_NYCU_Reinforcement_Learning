@@ -16,7 +16,7 @@ def make_env(scenario='austria_competition', random_start=True, **kwargs):
             scenario=scenario,
             render_mode='rgb_array_birds_eye',
             random_start=random_start,
-            reset_when_collision=False,
+            reset_when_collision=True,
             **kwargs
         )
         env = ResizeObservation(env, shape=(84, 84))
@@ -120,6 +120,7 @@ if __name__ == '__main__':
         learning_rate=0.0001,
         verbose=1,
         tensorboard_log='logs/tensorboard/',
+        batch_size=128,
     )
 
     model.learn(total_timesteps=total_timesteps, callback=[score_callback, checkpoint_callback])
