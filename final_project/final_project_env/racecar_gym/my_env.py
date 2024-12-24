@@ -60,6 +60,7 @@ class RaceEnv(gym.Env):
             
         self.cur_step = 0
         obs, *others = self.env.reset(*args, **kwargs)
+        others[0]['lidar'] = obs['lidar'].astype(np.float32)
         obs = self.observation_postprocess(obs)
         return obs, *others
 
@@ -77,6 +78,7 @@ class RaceEnv(gym.Env):
         dict_actions = OrderedDict([(self.motor_name, array(motor_action, dtype=float32)),
                                     (self.steering_name, array(steering_action, dtype=float32))])
         obs, *others = self.env.step(dict_actions)
+        others[3]['lidar'] = obs['lidar'].astype(np.float32)
         obs = self.observation_postprocess(obs)
         return obs, *others
 

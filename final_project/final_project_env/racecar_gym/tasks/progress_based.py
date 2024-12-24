@@ -194,3 +194,41 @@ class MaximizeProgressVelocityObstaclePenaltyTask(MaximizeProgressRegularizeActi
         velocity = np.linalg.norm(state[agent_id]['velocity'][:2])
         self.velocity_reward = velocity * self._velocity_reward
         return self.progress_reward + self.collision_reward + self._frame_reward + self.regularization_penalty + self.obstacle_penalty + self.velocity_reward
+
+class CircleTask(MaximizeProgressTaskCollisionInfluenceTimeLimit):
+    def __init__(self, laps: int, time_limit: float, terminate_on_collision: bool,
+                 delta_progress=0.0,
+                 collision_reward=0,
+                 frame_reward=0,
+                 progress_reward=100,
+                 n_min_rays_termination=1080,
+                 collision_penalty_time_reduce=40.,
+                 velocity_reward=20.0,
+                 lidar_reward=20.0,
+                 lidar_penalty=-10.0):
+        super().__init__(laps, time_limit, terminate_on_collision, delta_progress, collision_reward, frame_reward,
+                         progress_reward, n_min_rays_termination, collision_penalty_time_reduce)
+        self._velocity_reward = velocity_reward
+        self._lidar_reward = lidar_reward
+        self._lidar_penalty = lidar_penalty
+
+    def reward(self, agent_id, state, action) -> float:
+        super().reward(agent_id, state, action)
+        velocity = np.linalg.norm(state[agent_id]['velocity'][:2])
+        self.velocity_reward = velocity * self._velocity_reward
+        lidar = state[agent_id]['lidar'][781:1021]
+        lidar_min = np.min(lidar)
+
+        self.lidar_reward = 0
+
+        if lidar_min < 0.03:
+            self.lidar_reward += self._lidar_penalty
+        else:
+            sigma1 = 0.1
+            sigma2 = 0.5
+            distance_reward1 = np.exp(-((lidar_min - 0.1) ** 2) / (2 * sigma1 ** 2)) * self._lidar_reward
+            distance_reward2 = np.exp(-((lidar_min - 0.1) ** 2) / (2 * sigma2 ** 2)) * self._lidar_reward
+            self.lidar_reward += distance_reward1 + distance_reward2
+        
+        
+        return self.progress_reward + self.collision_reward + self._frame_reward + self.velocity_reward + self.lidar_reward
