@@ -93,16 +93,16 @@ if __name__ == '__main__':
     eval_count = 5
 
     # train_env = SubprocVecEnv([make_env() for _ in range(agent_count)])
-    train_env = SubprocVecEnv([make_env(scenario=scenario) for _ in range(agent_count)])
+    train_env = SubprocVecEnv([make_env(scenario=scenario, random_start=True) for _ in range(agent_count)])
     train_env = VecTransposeImage(train_env)
     train_env = VecFrameStack(train_env, n_stack=4, channels_order='first')
-    train_env = VecNormalize(train_env, norm_obs=False, norm_reward=True)
+    train_env = VecNormalize(train_env, norm_obs=False, norm_reward=False)
     train_env = VecMonitor(train_env)
 
     test_env = SubprocVecEnv([make_env(scenario=scenario,random_start=False) for _ in range(eval_count)])
     test_env = VecTransposeImage(test_env)
     test_env = VecFrameStack(test_env, n_stack=4, channels_order='first')
-    test_env = VecNormalize(test_env, norm_obs=False, norm_reward=True)
+    test_env = VecNormalize(test_env, norm_obs=False, norm_reward=False)
     test_env = VecMonitor(test_env)
 
     score_callback = ScoreEvalCallback(
@@ -121,6 +121,8 @@ if __name__ == '__main__':
         verbose=1,
         tensorboard_log='logs/tensorboard/',
         batch_size=128,
+        use_sde=True,
+        sde_sample_freq=16,
     )
 
     model.learn(total_timesteps=total_timesteps, callback=[score_callback, checkpoint_callback])
