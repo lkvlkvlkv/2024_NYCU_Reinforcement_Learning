@@ -5,7 +5,7 @@ agents:
     vehicle:
       name: racecar_competition
       actuators: [ motor_competition, steering_competition ]
-      sensors: [ camera_competition, lidar ]
+      sensors: [ camera_competition, lidar]
     task:
       task_name: circle_task
       params: {
@@ -13,6 +13,9 @@ agents:
         time_limit: 25.0, # <---
         terminate_on_collision: True, # <---
         collision_reward: -50.0,
-        progress_reward: 1000.0,
-        frame_reward: 0.0,
+        progress_reward: 10000.0,
+        frame_reward: -0.1,
+        velocity_reward: 5.0,
+        lidar_reward: 1.0,
+        lidar_penalty: -1.0,
       }

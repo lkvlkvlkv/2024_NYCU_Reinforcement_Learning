@@ -63,11 +63,11 @@ sensors:
     frequency: 25
     params:
       accuracy: 0.03 # maximum deviation from true scan range (percentage)
-      rays: 1080
+      rays: 60
       range: 15.0
       min_range: 0.25
-      angle_start: -2.36
-      angle: 4.71
+      angle_start: 1.0472
+      angle: 1.0472
       debug: False
 
   - type: rgb_camera

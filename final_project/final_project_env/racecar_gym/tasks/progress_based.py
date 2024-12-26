@@ -216,7 +216,7 @@ class CircleTask(MaximizeProgressTaskCollisionInfluenceTimeLimit):
         super().reward(agent_id, state, action)
         velocity = np.linalg.norm(state[agent_id]['velocity'][:2])
         self.velocity_reward = velocity * self._velocity_reward
-        lidar = state[agent_id]['lidar'][781:1021]
+        lidar = state[agent_id]['lidar']
         lidar_min = np.min(lidar)
 
         self.lidar_reward = 0
