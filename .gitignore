@@ -6,6 +6,7 @@ events.out.tfevents.*
 *.pth
 *.mp4
 *.zip
+*.jpg
 LAB2/src
 LAB3/src
 LAB4/src
